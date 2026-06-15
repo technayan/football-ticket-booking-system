@@ -1,0 +1,57 @@
+-- =========================================================================
+-- SYSTEM: Football Ticket Booking System Database Setup Template
+-- DESCRIPTION: Pseudo-DDL Template for Table Creation & Data Insertion
+-- INSTRUCTIONS: Replace 'TYPE' and the constraint placeholders with your own
+--               actual data types, relational keys, and check criteria.
+-- =========================================================================
+
+-- DROP TABLES IF THEY ALREADY EXIST TO PREVENT CONFLICTS
+DROP TABLE IF EXISTS Bookings;
+DROP TABLE IF EXISTS Matches;
+DROP TABLE IF EXISTS Users;
+
+
+-- =========================================================================
+-- 1. CREATE USERS TABLE
+-- =========================================================================
+CREATE TABLE Users (
+    user_id SERIAL PRIMARY KEY,
+    full_name varchar(255) NOT NULL,
+    email varchar(255) UNIQUE NOT NULL,
+    role varchar(50) NOT NULL CHECK (role IN ('Ticket Manager', 'Football Fan')),
+    phone_number varchar(15)
+);
+
+
+-- =========================================================================
+-- 2. CREATE MATCHES TABLE
+-- =========================================================================
+CREATE TABLE Matches (
+    match_id SERIAL PRIMARY KEY,
+    fixture varchar(255) NOT NULL,
+    tournament_category varchar(255) NOT NULL,
+    base_ticket_price decimal(10, 2) NOT NULL CHECK (base_ticket_price >= 0),
+    match_status varchar(50) NOT NULL CHECK (
+        match_status IN (
+            'Available',
+            'Selling Fast',
+            'Sold Out',
+            'Postponed'
+        )
+    )
+);
+
+
+-- =========================================================================
+-- 3. CREATE BOOKINGS TABLE
+-- =========================================================================
+CREATE TABLE Bookings (
+    booking_id SERIAL PRIMARY KEY,
+    user_id int NOT NULL REFERENCES Users (user_id) ON DELETE CASCADE,
+    match_id int NOT NULL REFERENCES Matches (match_id) ON DELETE CASCADE,
+    seat_number varchar(255),
+    payment_status varchar(50) CHECK (
+        payment_status IN ('Pending', 'Confirmed', 'Cancelled', 'Refunded')
+    ),
+    total_cost decimal(10, 2) NOT NULL CHECK (total_cost >= 0)
+);
